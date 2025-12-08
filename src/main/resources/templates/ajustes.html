@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajustes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="sidebar">
+    <div class="brand">🏢 Simulador ED</div>
+    <a href="/" class="menu-item">📊 Panel General</a>
+    <a href="/clientes" class="menu-item">👥 Clientes</a>
+    <a href="/ajustes" class="menu-item active">⚙️ Ajustes</a>
+</div>
+
+<div class="main-content">
+    <h2>Configuración</h2>
+    <div class="card" style="border-top: 4px solid #ef4444; margin-top:20px;">
+        <h3>⚠️ Zona de Peligro</h3>
+        <p>Borrar tickets, historial y logs. (No borra clientes).</p>
+        <form th:action="@{/ajustes/reset}" method="post">
+            <button class="btn btn-danger" style="width:100%; padding:10px;">☢️ REINICIAR SISTEMA</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

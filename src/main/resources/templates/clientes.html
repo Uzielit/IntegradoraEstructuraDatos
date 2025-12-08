@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Directorio de Clientes</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .custom-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .custom-table th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #64748b; }
+        .custom-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
+        .avatar { width: 35px; height: 35px; background: #e0f2fe; color: #0369a1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand">🏢 Simulador ED</div>
+    <a href="/" class="menu-item">📊 Panel General</a>
+    <a href="/clientes" class="menu-item active">👥 Clientes</a>
+    <a href="/ajustes" class="menu-item">⚙️ Ajustes</a>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <h2>Cartera de Clientes</h2>
+        <button class="btn btn-primary" onclick="document.getElementById('form-rapido').style.display='block'">+ Nuevo Cliente</button>
+    </div>
+
+    <div id="form-rapido" class="card" style="display:none; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+        <h3>Nuevo Registro</h3>
+        <form th:action="@{/cliente/crear}" method="post" style="display:flex; gap:10px; margin-top:10px;">
+            <input type="text" name="nombre" class="form-input" placeholder="Nombre del Cliente" style="flex:1;" required>
+            <button class="btn btn-primary">Guardar</button>
+            <button type="button" class="btn btn-danger" onclick="document.getElementById('form-rapido').style.display='none'">Cancelar</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3>Base de Datos de Clientes</h3>
+        </div>
+
+        <table class="custom-table">
+            <thead>
+            <tr>
+                <th>Cliente</th>
+                <th>Empresa</th>
+                <th>Contacto</th>
+                <th>Estatus</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:if="${listaClientes.isEmpty()}">
+                <td colspan="5" style="text-align:center; padding:20px;">No hay clientes registrados.</td>
+            </tr>
+            <tr th:each="c : ${listaClientes}">
+                <td style="display:flex; align-items:center;">
+                    <div class="avatar" th:text="${#strings.substring(c.nombre,0,1)}">A</div>
+                    <div>
+                        <strong th:text="${c.nombre}"></strong><br>
+                        <small th:text="'ID: ' + ${c.id}" style="color:#94a3b8;"></small>
+                    </div>
+                </td>
+                <td th:text="${c.empresa}">Empresa</td>
+                <td>
+                    <div style="font-size:0.85rem;">
+                        <div th:text="${c.email}">email</div>
+                        <div th:text="${c.telefono}" style="color:#94a3b8;">tel</div>
+                    </div>
+                </td>
+                <td><span class="status-badge bg-green">Activo</span></td>
+                <td>
+                    <a th:href="@{/cliente/editar/{id}(id=${c.id})}" style="color:#3b82f6; font-weight:bold; margin-right:10px; text-decoration:none;">Editar</a>
+
+                    <form th:action="@{/cliente/eliminar}" method="post" style="display:inline;">
+                        <input type="hidden" name="id" th:value="${c.id}">
+                        <button style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">Baja</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

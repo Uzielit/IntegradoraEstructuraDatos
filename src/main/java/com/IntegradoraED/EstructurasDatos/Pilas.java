@@ -1,12 +1,9 @@
 package com.IntegradoraED.EstructurasDatos;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Pilas<T> {
-
     private Nodo<T> elementoDeArriba;
-
     private int cuantosHay;
 
     public Pilas() {
@@ -16,39 +13,30 @@ public class Pilas<T> {
 
     public void apilar(T valor) {
         Nodo<T> nuevoNodo = new Nodo<>(valor);
-        if (!estaVacia()) {
-            nuevoNodo.setProximo(elementoDeArriba);
-        }
+        if (!estaVacia()) nuevoNodo.setProximo(elementoDeArriba);
         elementoDeArriba = nuevoNodo;
         cuantosHay++;
     }
+
     public T desapilar() {
-        if (estaVacia()) {
-            throw new IllegalStateException("No se puede ");
-        }
+        if (estaVacia()) return null;
         T valorQuitado = elementoDeArriba.getValor();
-
         elementoDeArriba = elementoDeArriba.getProximo();
-
         cuantosHay--;
         return valorQuitado;
     }
 
-    public T verElDeArriba() {
-        if (estaVacia()) {
-            return null;
+    // --- NUEVO: BUSCAR ---
+    public boolean existe(String criterio) {
+        Nodo<T> actual = elementoDeArriba;
+        while (actual != null) {
+            if (actual.getValor().toString().contains(criterio)) return true;
+            actual = actual.getProximo();
         }
-        return elementoDeArriba.getValor();
+        return false;
     }
 
-    public int getCuantosHay() {
-        return cuantosHay;
-    }
-
-    public boolean estaVacia() {
-        return cuantosHay == 0;
-    }
-
+    public boolean estaVacia() { return cuantosHay == 0; }
 
     public List<T> conectorHtml() {
         List<T> listaParaVista = new ArrayList<>();

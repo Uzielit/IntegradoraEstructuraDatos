@@ -3,10 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Colas<T> {
-
     private Nodo<T> enfrente;
     private Nodo<T> finalDeLaFila;
-
     private int cuantosHay;
 
     public Colas() {
@@ -26,35 +24,30 @@ public class Colas<T> {
         }
         cuantosHay++;
     }
+
     public T atender() {
-        if (estaVacia()) {
-            throw new IllegalStateException("No se puede atender .");
-        }
+        if (estaVacia()) return null;
         T valorAtendido = enfrente.getValor();
-
         enfrente = enfrente.getProximo();
-
-        if (enfrente == null) {
-            finalDeLaFila = null;
-        }
+        if (enfrente == null) finalDeLaFila = null;
         cuantosHay--;
         return valorAtendido;
     }
 
-    public T verQuienSigue() {
-        if (estaVacia()) {
-            return null;
+    // --- NUEVO: BUSCAR ---
+    public boolean existe(String criterio) {
+        Nodo<T> actual = enfrente;
+        while (actual != null) {
+            // Convertimos a string para buscar por nombre o ID
+            if (actual.getValor().toString().contains(criterio)) {
+                return true;
+            }
+            actual = actual.getProximo();
         }
-        return enfrente.getValor();
+        return false;
     }
 
-    public int getCuantosHay() {
-        return cuantosHay;
-    }
-
-    public boolean estaVacia() {
-        return cuantosHay == 0;
-    }
+    public boolean estaVacia() { return cuantosHay == 0; }
 
     public List<T> conectorHtml() {
         List<T> listaParaVista = new ArrayList<>();
