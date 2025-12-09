@@ -2,81 +2,99 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Directorio de Clientes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes | Simulador ED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .custom-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .custom-table th { background: #f8fafc; padding: 12px; text-align: left; border-bottom: 2px solid #e2e8f0; color: #64748b; }
-        .custom-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; vertical-align: middle; }
-        .avatar { width: 35px; height: 35px; background: #e0f2fe; color: #0369a1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 10px; }
-    </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="brand">🏢 Simulador ED</div>
-    <a href="/" class="menu-item">📊 Panel General</a>
-    <a href="/clientes" class="menu-item active">👥 Clientes</a>
-    <a href="/ajustes" class="menu-item">⚙️ Ajustes</a>
+    <div class="brand"><i class="fa-solid fa-building-columns"></i> Simulador ED</div>
+    <nav>
+        <a href="/" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Panel General</a>
+        <a href="/clientes" class="menu-item active"><i class="fa-solid fa-users"></i> Clientes</a>
+    </nav>
 </div>
 
 <div class="main-content">
+
     <div class="top-bar">
-        <h2>Cartera de Clientes</h2>
-        <button class="btn btn-primary" onclick="document.getElementById('form-rapido').style.display='block'">+ Nuevo Cliente</button>
+        <div>
+            <h2>Cartera de Clientes</h2>
+            <p style="color:var(--text-muted);">Gestión de base de datos y contactos.</p>
+        </div>
     </div>
 
-    <div id="form-rapido" class="card" style="display:none; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
-        <h3>Nuevo Registro</h3>
-        <form th:action="@{/cliente/crear}" method="post" style="display:flex; gap:10px; margin-top:10px;">
-            <input type="text" name="nombre" class="form-input" placeholder="Nombre del Cliente" style="flex:1;" required>
-            <button class="btn btn-primary">Guardar</button>
-            <button type="button" class="btn btn-danger" onclick="document.getElementById('form-rapido').style.display='none'">Cancelar</button>
-        </form>
+    <div th:if="${mensajeError}" style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; text-align: center;">
+        <i class="fa-solid fa-circle-xmark"></i> <span th:text="${mensajeError}"></span>
     </div>
 
     <div class="card">
         <div class="card-header">
             <h3>Base de Datos de Clientes</h3>
+            <a th:if="${mensajeError == null and listaClientes != null and listaClientes.size() < 100 and !listaClientes.isEmpty()}" href="/clientes" style="font-size:0.8rem; color:var(--primary); text-decoration:none;">
+                <i class="fa-solid fa-rotate-left"></i> Ver todos
+            </a>
         </div>
 
         <table class="custom-table">
             <thead>
             <tr>
-                <th>Cliente</th>
-                <th>Empresa</th>
-                <th>Contacto</th>
-                <th>Estatus</th>
-                <th>Acciones</th>
+                <th>Perfil</th>
+                <th>Empresa</th> <th>Contacto</th>
+                <th>Estatus</th> <th>Acciones</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:if="${listaClientes.isEmpty()}">
-                <td colspan="5" style="text-align:center; padding:20px;">No hay clientes registrados.</td>
+            <tr th:if="${listaClientes == null or listaClientes.isEmpty()}">
+                <td colspan="5" style="text-align:center; padding:30px; color:var(--text-muted);">
+                    <i class="fa-regular fa-folder-open" style="font-size:2rem; margin-bottom:10px;"></i><br>
+                    No hay clientes registrados o encontrados.
+                </td>
             </tr>
-            <tr th:each="c : ${listaClientes}">
-                <td style="display:flex; align-items:center;">
-                    <div class="avatar" th:text="${#strings.substring(c.nombre,0,1)}">A</div>
-                    <div>
-                        <strong th:text="${c.nombre}"></strong><br>
-                        <small th:text="'ID: ' + ${c.id}" style="color:#94a3b8;"></small>
+            <tr th:each="c : ${listaClientes}" th:if="${c != null}">
+                <td>
+                    <div style="display:flex; align-items:center;">
+                        <div class="avatar" th:text="${(c.nombre != null && c.nombre.length() > 0) ? #strings.substring(c.nombre,0,1) : '?'}">A</div>
+                        <div>
+                            <strong th:text="${c.nombre}" style="display:block; color:var(--text-main);"></strong>
+                            <small style="color:var(--text-muted);">ID: <span th:text="${c.id}"></span></small>
+                        </div>
                     </div>
                 </td>
-                <td th:text="${c.empresa}">Empresa</td>
-                <td>
-                    <div style="font-size:0.85rem;">
-                        <div th:text="${c.email}">email</div>
-                        <div th:text="${c.telefono}" style="color:#94a3b8;">tel</div>
-                    </div>
-                </td>
-                <td><span class="status-badge bg-green">Activo</span></td>
-                <td>
-                    <a th:href="@{/cliente/editar/{id}(id=${c.id})}" style="color:#3b82f6; font-weight:bold; margin-right:10px; text-decoration:none;">Editar</a>
 
-                    <form th:action="@{/cliente/eliminar}" method="post" style="display:inline;">
-                        <input type="hidden" name="id" th:value="${c.id}">
-                        <button style="background:none; border:none; color:#ef4444; font-weight:bold; cursor:pointer;">Baja</button>
-                    </form>
+                <td>
+                    <span th:text="${c.empresa}" style="font-weight:500;">Empresa</span>
+                </td>
+
+                <td>
+                    <div style="font-size:0.9rem;">
+                        <div style="display:flex; align-items:center; gap:5px;">
+                            <i class="fa-regular fa-envelope" style="color:var(--text-muted); font-size:0.8rem;"></i>
+                            <span th:text="${c.email}">email</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:5px; margin-top:2px;">
+                            <i class="fa-solid fa-phone" style="color:var(--text-muted); font-size:0.7rem;"></i>
+                            <span th:text="${c.telefono}" style="color:var(--text-muted);">tel</span>
+                        </div>
+                    </div>
+                </td>
+
+                <td><span class="status-badge bg-green">Activo</span></td>
+
+                <td>
+                    <div style="display:flex; gap:10px;">
+                        <a th:href="@{/cliente/editar/{id}(id=${c.id})}" class="btn" style="background-color:#eff6ff; color:var(--primary); padding:6px 10px;">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <form th:action="@{/cliente/eliminar}" method="post" style="display:inline;">
+                            <input type="hidden" name="id" th:value="${c.id}">
+                            <button class="btn" style="background-color:#fef2f2; color:var(--danger); padding:6px 10px;" onclick="return confirm('¿Seguro de borrar este cliente?');">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             </tbody>

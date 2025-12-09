@@ -17,13 +17,17 @@ public class Cliente {
         this.estatus = "Activo";
     }
 
-    // Getters y Setters
+    // --- GETTERS ---
     public long getId() { return id; }
     public String getNombre() { return nombre; }
     public String getEmpresa() { return empresa; }
     public String getEmail() { return email; }
     public String getTelefono() { return telefono; }
     public String getEstatus() { return estatus; }
+
+    // --- SETTERS (Aquí faltaba el setId) ---
+    public void setId(long id) { this.id = id; } // <--- ¡ESTE ERA EL FALTANTE!
+
     public void setNombre(String nombre) { this.nombre = nombre; }
     public void setEmpresa(String empresa) { this.empresa = empresa; }
     public void setEmail(String email) { this.email = email; }

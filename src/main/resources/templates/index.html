@@ -2,131 +2,206 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Simulador de Atención ED</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Simulador ED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <style>
-        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 15px; }
-        .custom-table th { text-align: left; padding: 12px; background-color: #f8fafc; color: #64748b; border-bottom: 2px solid #e2e8f0; }
-        .custom-table td { padding: 12px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
-        .avatar { width: 30px; height: 30px; background: #e0f2fe; color: #0369a1; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; margin-right: 8px; }
-        .action-btn { background: none; border: none; cursor: pointer; font-weight: 600; font-size: 0.85rem; padding: 0; }
-    </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="brand">🏢 Simulador ED</div>
-    <a href="/" class="menu-item active">📊 Panel General</a>
-    <a href="/clientes" class="menu-item">👥 Clientes</a>
-    <a href="/ajustes" class="menu-item">⚙️ Ajustes</a>
-    <div style="margin-top: auto; font-size: 0.8rem; color: #64748b;">Sistema V 3.0<br>En línea</div>
+    <div class="brand"><i class="fa-solid fa-building-columns"></i> Simulador ED</div>
+    <nav>
+        <a href="/" class="menu-item active"><i class="fa-solid fa-chart-pie"></i> Panel General</a>
+        <a href="/clientes" class="menu-item"><i class="fa-solid fa-users"></i> Clientes</a>
+        <a href="/ajustes" class="menu-item"><i class="fa-solid fa-gear"></i> Ajustes</a>
+    </nav>
+    <div style="margin-top: auto; font-size: 0.8rem; color: #64748b; padding-top: 20px; border-top: 1px solid #334155;">
+        <i class="fa-solid fa-wifi"></i> Sistema V 3.0<br>En línea
+    </div>
 </div>
 
 <div class="main-content">
+
     <div class="top-bar">
         <div>
-            <h2 style="margin:0;">Control de Servicio</h2>
-            <span style="color:var(--text-secondary);">Administra fila, cajeros y clientes.</span>
+            <h2>Control de Servicio</h2>
+            <p style="color:var(--text-muted);">Administra fila, cajeros y flujo de atención.</p>
         </div>
         <form th:action="@{/buscar}" method="post" class="search-container">
-            <span>🔍</span>
-            <input type="text" name="query" class="search-input" placeholder="Buscar..." required>
-            <button type="submit" style="display:none;"></button>
+            <span><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" name="query" class="search-input" placeholder="Buscar ticket o cliente..." required>
         </form>
     </div>
 
-    <div th:if="${!busqueda.isEmpty()}" style="background:#fff3cd; color:#856404; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #ffeeba;">
-        <strong th:text="${busqueda}"></strong>
+    <div th:if="${errorAgentes != null}" style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong th:text="${errorAgentes}"></strong>
+    </div>
+
+    <div th:if="${busqueda != null and !busqueda.isEmpty()}" style="background:#fff3cd; color:#856404; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #ffeeba; display:flex; align-items:center; gap:10px;">
+        <i class="fa-solid fa-circle-info"></i> <strong th:text="${busqueda}"></strong>
     </div>
 
     <div class="grid-container">
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title"><h3>🕒 Sala de Espera</h3><span>Clientes formados (FIFO)</span></div>
-                <form th:action="@{/ticket/resolver}" method="post"><button class="btn btn-success">✅ Atender</button></form>
+                <div class="card-title">
+                    <h3><i class="fa-regular fa-clock"></i> Sala de Espera</h3>
+                    <span>Clientes formados (FIFO)</span>
+                </div>
+                <form th:action="@{/ticket/resolver}" method="post">
+                    <button class="btn btn-success"><i class="fa-solid fa-check"></i> Atender</button>
+                </form>
             </div>
 
-            <div th:if="${tickets.isEmpty()}" style="text-align:center; padding:10px; color:#94a3b8;">Fila vacía.</div>
+            <div th:if="${tickets != null and tickets.isEmpty()}" style="text-align:center; padding:20px; color:var(--text-muted); font-style:italic;">
+                <i class="fa-solid fa-coffee"></i> Fila vacía.
+            </div>
 
-            <ul class="data-list">
+            <ul class="data-list" th:if="${tickets != null and !tickets.isEmpty()}">
                 <li class="data-item" th:each="t : ${tickets}">
-                    <div><strong>#<span th:text="${t.id}"></span></strong> - <span th:text="${t.nombreCliente}"></span></div>
+                    <div>
+                        <strong style="color:var(--primary);">#<span th:text="${t.id}"></span></strong>
+                        <span th:text="${t.nombreCliente}" style="margin-left:5px;"></span>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-left:10px;">
+                            <i class="fa-solid fa-phone"></i> <span th:text="${t.telefono}"></span>
+                        </div>
+                    </div>
                     <span class="status-badge bg-blue" th:text="${t.tipoProblema}">Motivo</span>
                 </li>
             </ul>
 
-            <div class="action-area">
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <small><strong>Nuevo Turno & Registro</strong></small>
-                    <form th:action="@{/ticket/auto}" method="post"><button class="btn btn-primary" style="padding:4px 8px; font-size:0.7rem;">🤖 Random</button></form>
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                    <small style="font-weight:600; color:var(--text-muted);">Nuevo Turno</small>
+                    <form th:action="@{/ticket/auto}" method="post">
+                        <button class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">
+                            <i class="fa-solid fa-robot"></i> Generar Random
+                        </button>
+                    </form>
                 </div>
-                <form th:action="@{/ticket/nuevo}" method="post" style="display:flex; flex-direction:column; gap:8px;">
-                    <div style="display:flex; gap:5px;">
+                <form th:action="@{/ticket/nuevo}" method="post" style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; gap:10px;">
                         <input type="text" name="cliente" placeholder="Nombre" class="form-input" style="flex:1;" required>
                         <input type="text" name="asunto" placeholder="Motivo" class="form-input" style="flex:1;" required>
                     </div>
-                    <div style="display:flex; gap:5px;">
+                    <div style="display:flex; gap:10px;">
                         <input type="text" name="email" placeholder="Email" class="form-input" style="flex:1;">
                         <input type="text" name="telefono" placeholder="Teléfono" class="form-input" style="flex:1;">
                     </div>
-                    <button class="btn btn-primary" style="width:100%;">Formar y Registrar</button>
+                    <button class="btn btn-primary" style="width:100%;">Formar Cliente</button>
                 </form>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header"><div class="card-title"><h3>👨‍💼 Cajeros</h3><span>Activos (Lista)</span></div></div>
+            <div class="card-header">
+                <div class="card-title">
+                    <h3><i class="fa-solid fa-headset"></i> Agentes</h3>
+                    <span>Personal activo</span>
+                </div>
+            </div>
             <ul class="data-list">
-                <li class="data-item" th:each="op, stat : ${agentes}">
-                    <span><span style="color:#22c55e;">●</span> <span th:text="${op.nombre}"></span></span>
-                    <form th:action="@{/agente/baja}" method="post"><input type="hidden" name="indice" th:value="${stat.index}"><button class="btn btn-danger" style="padding:2px 8px;">Baja</button></form>
+                <li class="data-item" th:each="op, stat : ${agentes}" th:if="${op != null}">
+                    <span><i class="fa-solid fa-circle" style="color:var(--success); font-size:0.6rem; margin-right:5px;"></i> <span th:text="${op.nombre}"></span></span>
+                    <form th:action="@{/agente/baja}" method="post">
+                        <input type="hidden" name="indice" th:value="${stat.index}">
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:0.7rem;">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                    </form>
                 </li>
             </ul>
-            <div class="action-area">
-                <form th:action="@{/agente/nuevo}" method="post" class="input-group"><input type="text" name="nombre" placeholder="Nombre" class="form-input" required><button class="btn btn-primary">Add</button></form>
+            <div style="margin-top: 15px;">
+                <form th:action="@{/agente/nuevo}" method="post" style="display:flex; gap:5px;">
+                    <input type="text" name="nombre" placeholder="Nuevo Agente..." class="form-input" required>
+                    <button class="btn btn-primary">Add</button>
+                </form>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header"><div class="card-title"><h3>⚡ Reciente</h3><span>Bitácora (LIFO)</span></div><form th:action="@{/auditoria/borrar}" method="post"><button class="btn btn-danger">Borrar</button></form></div>
-            <ul class="data-list"><li class="data-item" th:each="log : ${auditoria}"><span th:text="${log}" style="font-family:monospace; font-size:0.8rem;"></span></li></ul>
+            <div class="card-header">
+                <div class="card-title">
+                    <h3><i class="fa-solid fa-bolt"></i> Actividad Reciente</h3>
+                    <span>Bitácora (LIFO)</span>
+                </div>
+                <form th:action="@{/auditoria/borrar}" method="post">
+                    <button class="btn btn-danger" style="padding:4px 10px; font-size:0.75rem;">Limpiar</button>
+                </form>
+            </div>
+            <ul class="data-list" style="max-height: 250px; overflow-y: auto;">
+                <li class="data-item" th:each="log : ${auditoria}" th:if="${log != null}">
+                    <span th:text="${log}" style="font-family:'Courier New', monospace; font-size:0.8rem; color:var(--text-muted);"></span>
+                </li>
+            </ul>
         </div>
 
         <div class="card">
-            <div class="card-header"><div class="card-title"><h3>🗂️ Historial</h3><span>Árbol</span></div></div>
+            <div class="card-header">
+                <div class="card-title">
+                    <h3><i class="fa-solid fa-folder-tree"></i> Historial</h3>
+                    <span>Estructura de Árbol</span>
+                </div>
+            </div>
             <ul class="data-list">
-                <li class="data-item" th:each="file : ${archivo}">
-                    <span th:text="${file}" style="font-family:monospace;"></span>
-                    <form th:action="@{/archivo/borrar}" method="post"><input type="hidden" name="dato" th:value="${file}"><button style="border:none; background:none; cursor:pointer; color:#ef4444;">🗑️</button></form>
+                <li class="data-item" th:each="file : ${archivo}" th:if="${file != null}">
+                    <span style="font-family:'Courier New', monospace; font-size:0.85rem;">
+                        <i class="fa-regular fa-file-lines" style="margin-right:5px; color:var(--secondary);"></i>
+                        <span th:text="${file}"></span>
+                    </span>
+                    <form th:action="@{/archivo/borrar}" method="post">
+                        <input type="hidden" name="dato" th:value="${file}">
+                        <button style="border:none; background:none; cursor:pointer; color:var(--danger);">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>
     </div>
 
-    <div class="card" style="margin-top: 30px; border-top: 4px solid #3b82f6;">
+    <div class="card" style="margin-top: 30px; border-top: 4px solid var(--primary);">
         <div class="card-header">
-            <div class="card-title"><h3>👥 Directorio de Clientes</h3><span>Base de datos en tiempo real.</span></div>
-            <a href="/clientes" class="btn btn-primary" style="text-decoration:none; font-size:0.85rem;">Pantalla Completa</a>
+            <div class="card-title">
+                <h3><i class="fa-solid fa-address-book"></i> Directorio Rápido</h3>
+                <span>Vista previa de la base de datos</span>
+            </div>
+            <a href="/clientes" class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem;">
+                Ver Todo <i class="fa-solid fa-arrow-right" style="margin-left:5px;"></i>
+            </a>
         </div>
         <div style="overflow-x: auto;">
             <table class="custom-table">
                 <thead><tr><th>Cliente</th><th>Empresa</th><th>Contacto</th><th>Estatus</th><th>Acciones</th></tr></thead>
                 <tbody>
-                <tr th:if="${listaClientes.isEmpty()}"><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">Sin registros.</td></tr>
-                <tr th:each="c : ${listaClientes}">
+                <tr th:if="${listaClientes == null or listaClientes.isEmpty()}"><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">Sin registros disponibles.</td></tr>
+                <tr th:each="c : ${listaClientes}" th:if="${c != null}">
                     <td>
                         <div style="display:flex; align-items:center;">
-                            <div class="avatar" th:text="${#strings.substring(c.nombre,0,1)}">A</div>
-                            <div><strong th:text="${c.nombre}" style="display:block;"></strong><span th:text="'ID: #' + ${c.id}" style="font-size:0.75rem; color:#94a3b8;"></span></div>
+                            <div class="avatar" th:text="${(c.nombre != null && c.nombre.length() > 0) ? #strings.substring(c.nombre,0,1) : '?'}">A</div>
+                            <div>
+                                <strong th:text="${c.nombre}" style="display:block;"></strong>
+                                <span th:text="'ID: #' + ${c.id}" style="font-size:0.75rem; color:var(--text-muted);"></span>
+                            </div>
                         </div>
                     </td>
                     <td th:text="${c.empresa}">Empresa</td>
-                    <td><div style="display:flex; flex-direction:column; font-size:0.85rem;"><span th:text="${c.email}">email</span><span th:text="${c.telefono}" style="color:#94a3b8;">tel</span></div></td>
+                    <td>
+                        <div style="display:flex; flex-direction:column; font-size:0.85rem;">
+                            <span th:text="${c.email}"></span>
+                            <span th:text="${c.telefono}" style="color:var(--text-muted); font-size:0.75rem;"></span>
+                        </div>
+                    </td>
                     <td><span class="status-badge bg-green">Activo</span></td>
-                    <td style="display:flex; gap:15px; align-items:center;">
-                        <a th:href="@{/cliente/editar/{id}(id=${c.id})}" class="action-btn" style="color:#3b82f6; text-decoration:none;">✏️ Editar</a>
-                        <form th:action="@{/cliente/eliminar}" method="post" style="margin:0;"><input type="hidden" name="id" th:value="${c.id}"><button type="submit" class="action-btn" style="color:#ef4444;" onclick="return confirm('¿Baja?');">🗑️ Baja</button></form>
+                    <td style="display:flex; gap:10px;">
+                        <a th:href="@{/cliente/editar/{id}(id=${c.id})}" style="color:var(--primary); text-decoration:none;"><i class="fa-solid fa-pen"></i></a>
+                        <form th:action="@{/cliente/eliminar}" method="post" style="margin:0;">
+                            <input type="hidden" name="id" th:value="${c.id}">
+                            <button type="submit" style="background:none; border:none; cursor:pointer; color:var(--danger);" onclick="return confirm('¿Eliminar cliente?');"><i class="fa-solid fa-trash"></i></button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>

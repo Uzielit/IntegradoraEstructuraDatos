@@ -2,25 +2,57 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Ajustes</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajustes | Simulador ED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+
 <div class="sidebar">
-    <div class="brand">🏢 Simulador ED</div>
-    <a href="/" class="menu-item">📊 Panel General</a>
-    <a href="/clientes" class="menu-item">👥 Clientes</a>
-    <a href="/ajustes" class="menu-item active">⚙️ Ajustes</a>
+    <div class="brand"><i class="fa-solid fa-building-columns"></i> Simulador ED</div>
+    <nav>
+        <a href="/" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Panel General</a>
+        <a href="/clientes" class="menu-item"><i class="fa-solid fa-users"></i> Clientes</a>
+        <a href="/ajustes" class="menu-item active"><i class="fa-solid fa-gear"></i> Ajustes</a>
+    </nav>
 </div>
 
 <div class="main-content">
-    <h2>Configuración</h2>
-    <div class="card" style="border-top: 4px solid #ef4444; margin-top:20px;">
-        <h3>⚠️ Zona de Peligro</h3>
-        <p>Borrar tickets, historial y logs. (No borra clientes).</p>
-        <form th:action="@{/ajustes/reset}" method="post">
-            <button class="btn btn-danger" style="width:100%; padding:10px;">☢️ REINICIAR SISTEMA</button>
-        </form>
+    <div class="top-bar">
+        <h2>Configuración del Sistema</h2>
+    </div>
+
+    <div class="grid-container" style="grid-template-columns: 1fr; max-width: 600px;">
+
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fa-solid fa-circle-info"></i> Información</h3>
+            </div>
+            <p style="color:var(--text-muted); line-height:1.6;">
+                Versión actual: <strong>3.0.1 (Stable)</strong><br>
+                Estado del servidor: <span style="color:var(--success); font-weight:bold;">● En línea</span><br>
+                Base de datos: Conectada
+            </p>
+        </div>
+
+        <div class="card" style="border: 1px solid #fca5a5; background: #fffdfd;">
+            <div class="card-header" style="border-bottom-color: #fca5a5;">
+                <h3 style="color: #b91c1c;"><i class="fa-solid fa-triangle-exclamation"></i> Zona de Peligro</h3>
+            </div>
+            <div style="padding-top:10px;">
+                <p style="margin-bottom:15px; color:var(--text-muted);">
+                    Esta acción eliminará todos los <strong>tickets, historial y bitácoras de auditoría</strong>.
+                    <br><small>(Nota: La base de datos de clientes NO se verá afectada).</small>
+                </p>
+                <form th:action="@{/ajustes/reset}" method="post">
+                    <button class="btn btn-danger" style="width:100%; justify-content:center; padding:12px;">
+                        <i class="fa-solid fa-power-off"></i> REINICIAR SISTEMA COMPLETO
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 </body>

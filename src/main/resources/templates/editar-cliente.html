@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Cliente | Simulador ED</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="brand"><i class="fa-solid fa-building-columns"></i> Simulador ED</div>
+    <nav>
+        <a href="/" class="menu-item"><i class="fa-solid fa-chart-pie"></i> Panel General</a>
+        <a href="/clientes" class="menu-item active"><i class="fa-solid fa-users"></i> Clientes</a>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="top-bar">
+        <h2><i class="fa-solid fa-pen-to-square"></i> Editar Cliente</h2>
+        <a href="/clientes" class="btn btn-secondary">Cancelar</a>
+    </div>
+
+    <div class="card" style="max-width: 600px; margin: 20px auto;">
+        <div class="card-header">
+            <h3>Actualizar Datos</h3>
+        </div>
+
+        <form th:action="@{/cliente/actualizar}" method="post" style="padding: 20px;">
+            <input type="hidden" name="id" th:value="${cliente.id}">
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; color:var(--text-muted); font-weight:bold;">Nombre Completo</label>
+                <input type="text" name="nombre" class="form-input" th:value="${cliente.nombre}" required style="width:100%;">
+            </div>
+
+            <div style="margin-bottom: 15px;">
+                <label style="display:block; margin-bottom:5px; color:var(--text-muted); font-weight:bold;">Empresa / Asunto</label>
+                <input type="text" name="empresa" class="form-input" th:value="${cliente.empresa}" style="width:100%;">
+            </div>
+
+            <div style="margin-bottom: 15px; display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div>
+                    <label style="display:block; margin-bottom:5px; color:var(--text-muted); font-weight:bold;">Email</label>
+                    <input type="text" name="email" class="form-input" th:value="${cliente.email}" style="width:100%;">
+                </div>
+                <div>
+                    <label style="display:block; margin-bottom:5px; color:var(--text-muted); font-weight:bold;">Teléfono</label>
+                    <input type="text" name="telefono" class="form-input" th:value="${cliente.telefono}" style="width:100%;">
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width:100%; justify-content:center; padding: 12px;">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

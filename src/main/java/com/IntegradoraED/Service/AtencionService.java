@@ -11,100 +11,147 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * AtencionService
+ * ---------------
+ * Esta clase contiene toda la Lógica de Negocio.
+ * Es el puente entre lo que el usuario ve (Controlador/HTML) y cómo se guardan los datos (Estructuras).
+ *
+ * AQUÍ OCURRE LA MAGIA DE LA INTEGRACIÓN DE ESTRUCTURAS:
+ * 1. Los Tickets entran a una COLA (FIFO).
+ * 2. Los Agentes están en una LISTA (Dinámica).
+ * 3. Al resolver, se guarda registro en una PILA (Auditoría LIFO).
+ * 4. Y el historial permanente se va a un ÁRBOL BINARIO (Ordenado).
+ */
+
 @Service
 public class AtencionService {
 
-    // --- ESTRUCTURAS DE DATOS ---
+    // --- ESTRUCTURAS DE DATOS (INSTANCIAS) ---
+    // Usamos la Cola para atender en orden de llegada (Justicia: FIFO)
     private Colas<Llamada> colaTickets = new Colas<>();
+
+    // Usamos Lista para gestionar el personal (fácil de recorrer y editar)
     private Listas<Operador> directorioAgentes = new Listas<>();
+
+    // Usamos Pila para la auditoría porque queremos ver lo MÁS RECIENTE arriba (LIFO)
     private Pilas<String> pilaAuditoria = new Pilas<>();
+
+    // Usamos Árbol para el archivo histórico para mantenerlo ordenado y buscar rápido
     private ArbolBinario<String> archivoHistorico = new ArbolBinario<>();
+
+    // Base de datos simulada de clientes en memoria
     private Listas<Cliente> baseDatosClientes = new Listas<>();
 
-    // Contadores
+    // Contadores para generar IDs únicos
     private long ticketCounter = 1000;
-    private long clienteIdCounter = 5000;
+    private long clienteManualCounter = 5000;
 
+    /**
+     * Constructor:
+     * Carga datos iniciales para que el sistema no empiece vacío.
+     */
     public AtencionService() {
-        // Datos Iniciales
+        // Inicializamos agentes por defecto
         directorioAgentes.agregar(new Operador(101, "A. Martínez (Caja 1)"));
         directorioAgentes.agregar(new Operador(102, "C. López (Supervisor)"));
-        directorioAgentes.agregar(new Operador(103, "R. Diaz (Soporte)"));
-
-        registrarClienteCompleto("Juan Pérez", "TechCorp", "juan.p@techcorp.com", "555-0101");
-        registrarClienteCompleto("Hotel Real", "Grupo Real", "admin@hotelreal.com", "555-0202");
     }
 
-    // ==========================================
-    // MÓDULO TICKETS (COLA) - ¡MODIFICADO!
-    // ==========================================
+    // -------------------------------------------------------------------------
+    // --- MÓDULO TICKETS (GESTIÓN DE LA COLA) ---
+    // -------------------------------------------------------------------------
 
-    // Método para generar tickets automáticos (Random)
+    /**
+     * Simulación: Crea un ticket con datos falsos aleatorios y lo mete a la Cola.
+     */
     public void generarTicketAutomatico() {
         String[] empresas = {"TechCorp", "Hotel Real", "Consultores SA", "Logística Express", "Usuario Particular"};
         String[] asuntos = {"Pago de Servicio", "Reclamo", "Contratación", "Soporte Técnico"};
         Random r = new Random();
-        Llamada ticket = new Llamada(ticketCounter++, empresas[r.nextInt(empresas.length)], asuntos[r.nextInt(asuntos.length)]);
+
+        // Selección aleatoria de datos
+        String nombre = empresas[r.nextInt(empresas.length)];
+        String asunto = asuntos[r.nextInt(asuntos.length)];
+        String email = nombre.toLowerCase().replace(" ", "") + "@mail.com";
+        String tel = "555-" + (1000 + r.nextInt(9000));
+
+        // Creación del objeto y Enqueue (Formar en la cola)
+        Llamada ticket = new Llamada(ticketCounter++, nombre, asunto, email, tel);
         colaTickets.formar(ticket);
+
         registrarAuditoria("Entrada: Ticket #" + ticket.getId() + " creado autom.");
     }
 
-    // Método manual: Recibe datos completos para registrar al cliente también
+    /**
+     * Crea un ticket con datos reales del formulario web.
+     */
     public void agregarTicketManual(String clienteNombre, String asunto, String email, String telefono) {
-        // 1. Crear Ticket en Cola
-        Llamada ticket = new Llamada(ticketCounter++, clienteNombre, asunto);
+        // Validaciones básicas para no guardar nulos
+        String mailFinal = (email == null || email.trim().isEmpty()) ? "S/N" : email;
+        String telFinal = (telefono == null || telefono.trim().isEmpty()) ? "S/N" : telefono;
+
+        Llamada ticket = new Llamada(ticketCounter++, clienteNombre, asunto, mailFinal, telFinal);
         colaTickets.formar(ticket);
-
-        // 2. Verificar si el cliente existe
-        boolean existe = false;
-        for(Cliente c : baseDatosClientes.conectorHtml()) {
-            if(c.getNombre().equalsIgnoreCase(clienteNombre)) {
-                existe = true;
-                break;
-            }
-        }
-
-        // 3. Si no existe, lo registramos con los datos del formulario
-        if(!existe) {
-            String mailFinal = (email == null || email.isEmpty()) ? "no-mail@sistema.com" : email;
-            String telFinal = (telefono == null || telefono.isEmpty()) ? "S/N" : telefono;
-
-            registrarClienteCompleto(clienteNombre, "Particular", mailFinal, telFinal);
-            registrarAuditoria("CRM: Cliente nuevo registrado desde Sala Espera (" + clienteNombre + ")");
-        }
 
         registrarAuditoria("Entrada: Ticket #" + ticket.getId() + " manual.");
     }
 
+    /**
+     * MÉTODO PRINCIPAL DEL SISTEMA
+     * Simula la resolución de un problema. Mueve datos entre TODAS las estructuras.
+     * 1. Saca de la Cola (Dequeue).
+     * 2. Guarda el Cliente en la Lista (BD).
+     * 3. Registra en la Pila (Auditoría).
+     * 4. Archiva en el Árbol (Historial).
+     */
     public String resolverTicket() {
+        // Validaciones: No se puede atender si no hay agentes o tickets
+        if (directorioAgentes.estaVacia()) return "ERROR: No hay agentes activos. ¡Agregue personal!";
         if (colaTickets.estaVacia()) return "No hay tickets pendientes.";
+
+        // 1. Atender (Sacar de la Cola)
         Llamada ticket = colaTickets.atender();
+
+        // 2. Creamos y guardamos al cliente en la "Base de Datos" (Lista)
+        Cliente clienteAtendido = new Cliente(
+                ticket.getId(), // Reusamos el ID del ticket para vincularlos
+                ticket.getNombreCliente(),
+                "Cliente Atendido",
+                ticket.getEmail(),
+                ticket.getTelefono()
+        );
+        baseDatosClientes.agregar(clienteAtendido);
+
+        // Preparamos el mensaje de log
         String log = "TKT-" + ticket.getId() + " | " + ticket.getNombreCliente() + " | FINALIZADO";
+
+        // 3. Apilar en Auditoría (Lo más reciente arriba)
         pilaAuditoria.apilar("Resolución: " + log);
+
+        // 4. Insertar en Árbol (Se ordena alfabéticamente/numéricamente)
         archivoHistorico.insertar(log);
-        return "Ticket " + ticket.getId() + " resuelto.";
+
+        return "Ticket " + ticket.getId() + " atendido y archivado.";
     }
 
-    // ==========================================
-    // MÓDULO CLIENTES (CRUD)
-    // ==========================================
-    public void registrarClienteCompleto(String nombre, String empresa, String email, String tel) {
-        baseDatosClientes.agregar(new Cliente(clienteIdCounter++, nombre, empresa, email, tel));
+    // -------------------------------------------------------------------------
+    // --- MÓDULO CLIENTES MANUALES (CRUD EN LISTA) ---
+    // -------------------------------------------------------------------------
+
+    public void registrarClienteNuevo(String nombre, String email, String telefono) {
+        String emailFinal = (email == null || email.trim().isEmpty()) ? "S/N" : email;
+        String telFinal = (telefono == null || telefono.trim().isEmpty()) ? "S/N" : telefono;
+
+        baseDatosClientes.agregar(new Cliente(clienteManualCounter++, nombre, "Registro Manual", emailFinal, telFinal));
+        registrarAuditoria("CRM: Cliente manual " + nombre + " registrado.");
     }
 
-    // Este es para cuando creas cliente desde el módulo "Clientes" (formulario simple)
-    public void registrarClienteNuevo(String nombre) {
-        for(Cliente c : baseDatosClientes.conectorHtml()) {
-            if(c.getNombre().equalsIgnoreCase(nombre)) return;
-        }
-        registrarClienteCompleto(nombre, "Particular", nombre.toLowerCase().replace(" ",".")+"@mail.com", "Pendiente");
-        registrarAuditoria("CRM: Nuevo cliente registrado (" + nombre + ")");
-    }
+    // Retorna la lista convertida para el HTML
+    public List<Cliente> getTodosLosClientes() { return baseDatosClientes.conectorHtml(); }
 
-    public List<Cliente> getTodosLosClientes() {
-        return baseDatosClientes.conectorHtml();
-    }
-
+    /**
+     * Búsqueda Lineal en la lista de clientes.
+     */
     public Cliente buscarClientePorId(long id) {
         for (Cliente c : baseDatosClientes.conectorHtml()) {
             if (c.getId() == id) return c;
@@ -112,59 +159,92 @@ public class AtencionService {
         return null;
     }
 
+    /**
+     * Eliminación en lista. Busca por ID y elimina por índice.
+     */
     public void eliminarClientePorId(long id) {
         List<Cliente> lista = baseDatosClientes.conectorHtml();
         for (int i = 0; i < lista.size(); i++) {
             if (lista.get(i).getId() == id) {
-                try {
-                    baseDatosClientes.eliminarElemento(i);
-                    registrarAuditoria("CRM: Cliente eliminado (ID: " + id + ")");
-                } catch (Exception e) {}
-                break;
+                try { baseDatosClientes.eliminarElemento(i); } catch (Exception e) {}
+                break; // Rompe el ciclo una vez encontrado y eliminado
             }
         }
     }
 
-    // ==========================================
-    // OTROS MÓDULOS (AGENTES, AUDITORÍA, ETC)
-    // ==========================================
-    public void contratarAgente(String nombre) {
-        directorioAgentes.agregar(new Operador(System.currentTimeMillis(), nombre));
-        registrarAuditoria("RRHH: Alta de " + nombre);
-    }
-    public void despedirAgente(int indice) {
-        try { directorioAgentes.eliminarElemento(indice); registrarAuditoria("RRHH: Baja de personal"); } catch (Exception e) {}
-    }
-    public void limpiarUltimaAuditoria() { if(!pilaAuditoria.estaVacia()) pilaAuditoria.desapilar(); }
-    public void borrarDeArchivo(String dato) { archivoHistorico.eliminar(dato); registrarAuditoria("Admin: Registro eliminado del archivo"); }
+    // -------------------------------------------------------------------------
+    // --- MÓDULO AGENTES (GESTIÓN DE PERSONAL) ---
+    // -------------------------------------------------------------------------
 
+    public void contratarAgente(String nombre) {
+        // Usamos el tiempo actual como ID único temporal
+        directorioAgentes.agregar(new Operador(System.currentTimeMillis(), nombre));
+        // LOG: Se registra en actividad reciente
+        registrarAuditoria("✅ RRHH: Nuevo Agente - " + nombre);
+    }
+
+    public void despedirAgente(int indice) {
+        try {
+            // Recuperamos el objeto eliminado para saber su nombre antes de que desaparezca
+            Operador agenteEliminado = directorioAgentes.eliminarElemento(indice);
+            if (agenteEliminado != null) {
+                // LOG: Se registra con el nombre específico
+                registrarAuditoria("❌ RRHH: Agente Eliminado - " + agenteEliminado.getNombre());
+            }
+        } catch (Exception e) {
+            registrarAuditoria("⚠️ Error al eliminar agente");
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // --- OTROS MÓDULOS (AUDITORÍA, BÚSQUEDA, RESET) ---
+    // -------------------------------------------------------------------------
+
+    // Elimina el evento más reciente (Undo/Deshacer)
+    public void limpiarUltimaAuditoria() { if(!pilaAuditoria.estaVacia()) pilaAuditoria.desapilar(); }
+
+    // Elimina un nodo específico del árbol
+    public void borrarDeArchivo(String dato) { archivoHistorico.eliminar(dato); }
+
+    /**
+     * BUSCADOR GLOBAL:
+     * Busca el texto 'query' en TODAS las estructuras de datos disponibles.
+     * Retorna un string indicando en qué lugar se encontró primero.
+     */
     public String buscarEnSistema(String query) {
         if(query == null || query.trim().isEmpty()) return "";
-        if(colaTickets.existe(query)) return "📍 Encontrado en: SALA DE ESPERA (Pendiente)";
-        if(pilaAuditoria.existe(query)) return "📍 Encontrado en: AUDITORÍA RECIENTE";
-        if(archivoHistorico.buscar(query)) return "📍 Encontrado en: ARCHIVO HISTÓRICO";
-        for(Object op : directorioAgentes.conectorHtml()){
-            if(op.toString().contains(query)) return "📍 Encontrado en: CAJEROS / AGENTES";
-        }
+
+        // Verifica en Cola, Pila, Árbol y Lista
+        if(colaTickets.existe(query)) return "📍 SALA DE ESPERA";
+        if(pilaAuditoria.existe(query)) return "📍 AUDITORÍA";
+        if(archivoHistorico.buscar(query)) return "📍 HISTÓRICO";
+
+        // Búsqueda en lista de clientes (manual)
         for(Cliente c : baseDatosClientes.conectorHtml()){
-            if(c.getNombre().toLowerCase().contains(query.toLowerCase())) return "📍 Encontrado en: BASE DE DATOS CLIENTES";
+            if(c.getNombre().toLowerCase().contains(query.toLowerCase())) return "📍 CLIENTES";
         }
-        return "⚠️ No se encontraron resultados para: " + query;
+        return "⚠️ No encontrado: " + query;
     }
 
+    /**
+     * Reinicio de fábrica: Crea nuevas instancias vacías de todas las estructuras.
+     */
     public void reiniciarSistema() {
         colaTickets = new Colas<>();
         pilaAuditoria = new Pilas<>();
         archivoHistorico = new ArbolBinario<>();
-        registrarAuditoria("⚠️ SISTEMA REINICIADO POR ADMINISTRADOR");
+        // Nota: No se borran los agentes ni clientes en este método específico según la lógica actual
     }
 
+    // Método privado para facilitar el registro de logs con fecha y hora
     private void registrarAuditoria(String accion) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
         pilaAuditoria.apilar("[" + LocalDateTime.now().format(dtf) + "] " + accion);
     }
 
-    // Getters Views
+    // --- GETTERS (CONECTORES AL FRONTEND) ---
+    // Estos métodos convierten tus estructuras complejas en Listas simples de Java
+    // para que Thymeleaf pueda dibujarlas en las tablas HTML.
     public List<Llamada> getTicketsPendientes() { return colaTickets.conectorHtml(); }
     public List<Operador> getAgentes() { return directorioAgentes.conectorHtml(); }
     public List<String> getAuditoria() { return pilaAuditoria.conectorHtml(); }
