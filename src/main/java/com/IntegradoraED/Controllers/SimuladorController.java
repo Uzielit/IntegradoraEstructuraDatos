@@ -34,12 +34,7 @@ public class SimuladorController {
     // MÉTODOS DE UTILIDAD / SEGURIDAD (HELPERS)
     // -------------------------------------------------------------------------
 
-    /**
-     * --- MÉTODO DE SEGURIDAD MÁXIMA ---
-     * Su función es evitar errores "NullPointerException" en las vistas HTML (Thymeleaf).
-     * Si el servicio devuelve 'null', este método lo convierte en una lista vacía [].
-     * Esto asegura que la página cargue incluso si la base de datos falla.
-     */
+
     private <T> List<T> asegurarLista(List<T> list) {
         return (list == null) ? new ArrayList<>() : list;
     }

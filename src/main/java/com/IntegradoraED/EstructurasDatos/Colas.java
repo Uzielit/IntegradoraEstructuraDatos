@@ -3,10 +3,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Clase Colas (Queue)
+ * Clase Colas
  * -------------------
  * Implementación de una estructura de datos lineal tipo FIFO (First In, First Out).
- * Imagina una fila en el supermercado: el primero que llega es el primero en ser atendido.
+ * Primero en entrar primero en salir
  *
  * @param <T> Tipo genérico (puede ser Ticket, Llamada, Cliente, etc.)
  */
@@ -32,7 +32,7 @@ public class Colas<T> {
     }
 
     /**
-     * Método Enqueue (Formar)
+     * Formar
      * Agrega un nuevo elemento al FINAL de la fila.
      * @param valor El objeto a guardar.
      */
@@ -53,7 +53,7 @@ public class Colas<T> {
     }
 
     /**
-     * Método Dequeue (Atender)
+     * Método que tebdmos cliente
      * Saca y devuelve el elemento que está al FRENTE de la fila.
      * @return El objeto atendido o null si está vacía.
      */
@@ -77,7 +77,7 @@ public class Colas<T> {
     // --- NUEVO: BUSCAR ---
     /**
      * Recorre la cola sin modificarla para ver si un elemento existe.
-     * Útil para la barra de búsqueda.
+     * Esto solo es para la barra de busqueda y solo funcioa con nombres
      */
     public boolean existe(String criterio) {
         Nodo<T> actual = enfrente;
@@ -92,15 +92,17 @@ public class Colas<T> {
     }
 
     /**
-     * Verifica si el contador es 0.
+     * verifica si esta esta vacia
      */
     public boolean estaVacia() { return cuantosHay == 0; }
 
     /**
-     * Método auxiliar para conectar con el Frontend (HTML).
+     * Este es nuestro metodo para conectar con nuestro html
+     * Aqui las estructuras dinámicas como la cola de Nodos, es dificil de leer para nuestro html entonces
+     * utilizamos lass lista estándar de Java (ArrayList) solo para visualización.
      * Las estructuras dinámicas (como esta Cola de Nodos) son difíciles de leer
      * para Thymeleaf/HTML, así que este método convierte la Cola en una
-     * lista estándar de Java (ArrayList) solo para visualización.
+     *
      */
     public List<T> conectorHtml() {
         List<T> listaParaVista = new ArrayList<>();

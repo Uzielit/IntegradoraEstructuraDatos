@@ -49,7 +49,7 @@ public class AtencionService {
 
     /**
      * Constructor:
-     * Carga datos iniciales para que el sistema no empiece vacío.
+     * datos predeterminados para que haya operadores
      */
     public AtencionService() {
         // Inicializamos agentes por defecto
@@ -62,7 +62,7 @@ public class AtencionService {
     // -------------------------------------------------------------------------
 
     /**
-     * Simulación: Crea un ticket con datos falsos aleatorios y lo mete a la Cola.
+     * Simulacion de datos, para que no haya rerigstro vacio
      */
     public void generarTicketAutomatico() {
         String[] empresas = {"TechCorp", "Hotel Real", "Consultores SA", "Logística Express", "Usuario Particular"};
@@ -189,10 +189,10 @@ public class AtencionService {
             Operador agenteEliminado = directorioAgentes.eliminarElemento(indice);
             if (agenteEliminado != null) {
                 // LOG: Se registra con el nombre específico
-                registrarAuditoria("❌ RRHH: Agente Eliminado - " + agenteEliminado.getNombre());
+                registrarAuditoria(": Operador Despedido  - " + agenteEliminado.getNombre());
             }
         } catch (Exception e) {
-            registrarAuditoria("⚠️ Error al eliminar agente");
+            registrarAuditoria(" Error al eliminar agente");
         }
     }
 
@@ -215,9 +215,9 @@ public class AtencionService {
         if(query == null || query.trim().isEmpty()) return "";
 
         // Verifica en Cola, Pila, Árbol y Lista
-        if(colaTickets.existe(query)) return "📍 SALA DE ESPERA";
-        if(pilaAuditoria.existe(query)) return "📍 AUDITORÍA";
-        if(archivoHistorico.buscar(query)) return "📍 HISTÓRICO";
+        if(colaTickets.existe(query)) return " SALA DE ESPERA";
+        if(pilaAuditoria.existe(query)) return " AUDITORÍA";
+        if(archivoHistorico.buscar(query)) return " HISTÓRICO";
 
         // Búsqueda en lista de clientes (manual)
         for(Cliente c : baseDatosClientes.conectorHtml()){

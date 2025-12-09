@@ -32,13 +32,7 @@ public class ArbolBinario<T extends Comparable<T>> {
      */
     public void insertar(T dato) { raiz = insertarRecursivo(raiz, dato); }
 
-    /**
-     * Método recursivo para encontrar el lugar correcto del nuevo dato.
-     * Lógica:
-     * 1. Si el espacio está vacío, se crea el nodo aquí.
-     * 2. Si el dato es MENOR que el actual, se manda a la IZQUIERDA.
-     * 3. Si el dato es MAYOR que el actual, se manda a la DERECHA.
-     */
+
     private NodoArbol<T> insertarRecursivo(NodoArbol<T> actual, T dato) {
         if (actual == null) return new NodoArbol<>(dato); // Caso base: encontramos un hueco
 
