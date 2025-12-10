@@ -180,7 +180,7 @@ public class AtencionService {
         // Usamos el tiempo actual como ID único temporal
         directorioAgentes.agregar(new Operador(System.currentTimeMillis(), nombre));
         // LOG: Se registra en actividad reciente
-        registrarAuditoria("✅ RRHH: Nuevo Agente - " + nombre);
+        registrarAuditoria("Registrado : Nuevo operador - " + nombre);
     }
 
     public void despedirAgente(int indice) {
@@ -192,7 +192,7 @@ public class AtencionService {
                 registrarAuditoria(": Operador Despedido  - " + agenteEliminado.getNombre());
             }
         } catch (Exception e) {
-            registrarAuditoria(" Error al eliminar agente");
+            registrarAuditoria(" Error al eliminar operador");
         }
     }
 

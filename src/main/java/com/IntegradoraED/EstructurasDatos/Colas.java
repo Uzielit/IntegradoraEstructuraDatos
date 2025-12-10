@@ -100,8 +100,6 @@ public class Colas<T> {
      * Este es nuestro metodo para conectar con nuestro html
      * Aqui las estructuras dinámicas como la cola de Nodos, es dificil de leer para nuestro html entonces
      * utilizamos lass lista estándar de Java (ArrayList) solo para visualización.
-     * Las estructuras dinámicas (como esta Cola de Nodos) son difíciles de leer
-     * para Thymeleaf/HTML, así que este método convierte la Cola en una
      *
      */
     public List<T> conectorHtml() {

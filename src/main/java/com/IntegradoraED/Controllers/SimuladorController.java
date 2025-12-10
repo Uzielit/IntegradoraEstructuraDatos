@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * SimuladorController
- * -------------------
  * Este es el controlador principal de la aplicación web.
  * Se encarga de recibir todas las peticiones HTTP (clics del usuario, formularios),
  * llamar al servicio (AtencionService) para procesar los datos y devolver las
@@ -61,7 +60,7 @@ public class SimuladorController {
     // -------------------------------------------------------------------------
 
     /**
-     * Ruta Principal (Dashboard): "/"
+     * Ruta Principal
      * Carga toda la información necesaria para el panel de control: tickets, agentes, auditoría.
      */
     @GetMapping("/")

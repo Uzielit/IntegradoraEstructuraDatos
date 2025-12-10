@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Clase Listas (Arreglo Dinámico)
- * -------------------------------
- * Implementación personalizada de una lista que crece automáticamente.
- * A diferencia de un arreglo normal (ej: int[5]) que tiene tamaño fijo,
+ * Clase Listas este es un arrgelo dinamico
+ * Esta lista crece automaticamente a diferente de un arreglo normal
+ * que tiene un tamaño fijo
  * esta estructura detecta cuando se llena y duplica su capacidad.
  *
  * @param <T> Tipo genérico (puede guardar cualquier objeto).
@@ -31,7 +30,7 @@ public class Listas<T> {
     }
 
     /**
-     * MÉTODO CLAVE: Redimensionamiento (Resizing)
+     * Aqui damos los arreglos:
      * Verifica si el arreglo está lleno. Si lo está:
      * 1. Calcula el doble de tamaño.
      * 2. Crea un arreglo nuevo más grande.
@@ -50,7 +49,6 @@ public class Listas<T> {
         }
     }
 
-    // Operaciones Públicas
 
     /**
      * Agrega un elemento al final de la lista.
@@ -62,30 +60,9 @@ public class Listas<T> {
         cuantosHay++;
     }
 
-    /**
-     * Obtiene el elemento en una posición específica (acceso directo).
-     * Valida que la posición solicitada exista.
-     */
-    public T obtener(int posicion) {
-        if (posicion < 0 || posicion >= cuantosHay) {
-            throw new IndexOutOfBoundsException("No valido :  " + posicion);
-        }
-        // Casteo necesario porque el arreglo guarda 'Object' pero retornamos 'T'
-        return (T) elementosGuardados[posicion];
-    }
 
-    /**
-     * Búsqueda lineal: Recorre el arreglo uno por uno para ver si encuentra el objeto.
-     * @return El índice donde está el objeto, o -1 si no existe.
-     */
-    public int buscarElemento(T elemento) {
-        for(int i = 0; i < cuantosHay; i++) {
-            if(elementosGuardados[i].equals(elemento)) {
-                return i; // Encontrado en la posición i
-            }
-        }
-        return -1;
-    }
+
+
 
     /**
      * Elimina un elemento por su índice.
