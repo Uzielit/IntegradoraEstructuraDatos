@@ -25,13 +25,11 @@ import java.util.List;
 @Controller
 public class SimuladorController {
 
-    // Inyección de dependencias: Conectamos con la lógica de negocio (Servicio)
+    // CONEXIÓN DE LA LOGICA
     @Autowired
     private AtencionService service;
 
-    // -------------------------------------------------------------------------
-    // MÉTODOS DE UTILIDAD / SEGURIDAD (HELPERS)
-    // -------------------------------------------------------------------------
+
 
 
     private <T> List<T> asegurarLista(List<T> list) {
@@ -39,8 +37,7 @@ public class SimuladorController {
     }
 
     /**
-     * Filtra una lista de clientes para eliminar datos corruptos o vacíos.
-     * Crea una lista nueva y solo agrega los clientes que tengan un nombre válido.
+     * Creamos la lista de los clientes
      */
     private List<Cliente> validarClientes(List<Cliente> original) {
         List<Cliente> limpia = new ArrayList<>();
@@ -55,9 +52,9 @@ public class SimuladorController {
         return limpia;
     }
 
-    // -------------------------------------------------------------------------
+
     // VISTAS PRINCIPALES (GET MAPPINGS)
-    // -------------------------------------------------------------------------
+
 
     /**
      * Ruta Principal
@@ -68,7 +65,7 @@ public class SimuladorController {
         // Obtenemos las listas de tickets actuales desde el servicio
         List<Llamada> tickets = service.getTicketsPendientes();
 
-        // --- BLOQUE DE DEPURACIÓN EN CONSOLA ---
+
         // Esto imprime en la terminal del servidor un reporte rápido de tickets de "Soporte".
         // Tiene validaciones de nulos para no romper la ejecución si hay datos incompletos.
         if(tickets != null) {
@@ -86,7 +83,7 @@ public class SimuladorController {
             System.out.println("Soporte Total: " + contadorSoporte);
         }
 
-        // --- ENVIAMOS DATOS PROTEGIDOS AL HTML ---
+        // se envian los datos al html
         // Usamos asegurarLista() para todo. Así si algo es null, se envía una lista vacía []
         // 'Model' es el objeto que transporta los datos desde Java hacia el HTML.
         model.addAttribute("tickets", asegurarLista(tickets));
@@ -106,7 +103,7 @@ public class SimuladorController {
 
     /**
      * Ruta: "/clientes"
-     * Muestra la pantalla exclusiva de gestión de clientes.
+     * Pantalla de clientes
      */
     @GetMapping("/clientes")
     public String verClientes(Model model) {
@@ -153,9 +150,9 @@ public class SimuladorController {
         return "redirect:/";
     }
 
-    // -------------------------------------------------------------------------
+
     // GESTIÓN DE CLIENTES (CRUD)
-    // -------------------------------------------------------------------------
+
 
     /**
      * Registra un nuevo cliente en la base de datos/lista.
@@ -168,6 +165,7 @@ public class SimuladorController {
 
     /**
      * Elimina un cliente basándose en su ID único.
+     * Los id empiezan desde el 1000
      */
     @PostMapping("/cliente/eliminar")
     public String eliminarCliente(@RequestParam long id) { service.eliminarClientePorId(id); return "redirect:/clientes"; }
@@ -195,13 +193,14 @@ public class SimuladorController {
         return "redirect:/clientes";
     }
 
-    // -------------------------------------------------------------------------
+
     // LÓGICA DE BÚSQUEDA
-    // -------------------------------------------------------------------------
+
 
     /**
      * Busca clientes por nombre (búsqueda lineal).
      * Recibe el texto 'query' desde la barra de búsqueda.
+     * el cliente solo se puede buscar por nombre especifico
      */
     @PostMapping("/buscar")
     public String buscar(@RequestParam String query, Model model) {
@@ -233,18 +232,19 @@ public class SimuladorController {
         return "clientes";
     }
 
-    // -------------------------------------------------------------------------
+
     // OTROS METODOS (AGENTES, AUDITORÍA, AJUSTES)
-    // -------------------------------------------------------------------------
+
 
     /**
-     * Contrata un nuevo agente (aumenta capacidad de atención).
+     * Contrata un nuevo operador (aumenta capacidad de atención).
+     * podemos agregar
      */
     @PostMapping("/agente/nuevo")
     public String nuevoAgente(@RequestParam String nombre) { service.contratarAgente(nombre); return "redirect:/"; }
 
     /**
-     * Despide a un agente por su índice en la lista (pila/cola de agentes).
+     * Despide a un operador por su índice en la lista (pila/cola de agentes).
      */
     @PostMapping("/agente/baja")
     public String bajaAgente(@RequestParam int indice) { service.despedirAgente(indice); return "redirect:/"; }
