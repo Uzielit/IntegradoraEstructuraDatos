@@ -13,11 +13,10 @@ import java.util.Random;
 
 /**
  * AtencionService
- * ---------------
  * Esta clase contiene toda la Lógica de Negocio.
  * Es el puente entre lo que el usuario ve (Controlador/HTML) y cómo se guardan los datos (Estructuras).
  *
- * AQUÍ OCURRE LA MAGIA DE LA INTEGRACIÓN DE ESTRUCTURAS:
+ * AQUÍ OCURRE todo el procesamiento del codigo
  * 1. Los Tickets entran a una COLA (FIFO).
  * 2. Los Agentes están en una LISTA (Dinámica).
  * 3. Al resolver, se guarda registro en una PILA (Auditoría LIFO).
@@ -52,14 +51,14 @@ public class AtencionService {
      * datos predeterminados para que haya operadores
      */
     public AtencionService() {
-        // Inicializamos agentes por defecto
+        // operadores predeterminados
         directorioAgentes.agregar(new Operador(101, "A. Martínez (Caja 1)"));
-        directorioAgentes.agregar(new Operador(102, "C. López (Supervisor)"));
+        directorioAgentes.agregar(new Operador(102, "C. López (caja 2)"));
     }
 
-    // -------------------------------------------------------------------------
+
     // --- MÓDULO TICKETS (GESTIÓN DE LA COLA) ---
-    // -------------------------------------------------------------------------
+
 
     /**
      * Simulacion de datos, para que no haya rerigstro vacio
@@ -172,9 +171,9 @@ public class AtencionService {
         }
     }
 
-    // -------------------------------------------------------------------------
+
     // --- MÓDULO AGENTES (GESTIÓN DE PERSONAL) ---
-    // -------------------------------------------------------------------------
+
 
     public void contratarAgente(String nombre) {
         // Usamos el tiempo actual como ID único temporal
@@ -196,9 +195,9 @@ public class AtencionService {
         }
     }
 
-    // -------------------------------------------------------------------------
+
     // --- OTROS MÓDULOS (AUDITORÍA, BÚSQUEDA, RESET) ---
-    // -------------------------------------------------------------------------
+
 
     // Elimina el evento más reciente (Undo/Deshacer)
     public void limpiarUltimaAuditoria() { if(!pilaAuditoria.estaVacia()) pilaAuditoria.desapilar(); }
@@ -206,25 +205,7 @@ public class AtencionService {
     // Elimina un nodo específico del árbol
     public void borrarDeArchivo(String dato) { archivoHistorico.eliminar(dato); }
 
-    /**
-     * BUSCADOR GLOBAL:
-     * Busca el texto 'query' en TODAS las estructuras de datos disponibles.
-     * Retorna un string indicando en qué lugar se encontró primero.
-     */
-    public String buscarEnSistema(String query) {
-        if(query == null || query.trim().isEmpty()) return "";
 
-        // Verifica en Cola, Pila, Árbol y Lista
-        if(colaTickets.existe(query)) return " SALA DE ESPERA";
-        if(pilaAuditoria.existe(query)) return " AUDITORÍA";
-        if(archivoHistorico.buscar(query)) return " HISTÓRICO";
-
-        // Búsqueda en lista de clientes (manual)
-        for(Cliente c : baseDatosClientes.conectorHtml()){
-            if(c.getNombre().toLowerCase().contains(query.toLowerCase())) return "📍 CLIENTES";
-        }
-        return "⚠️ No encontrado: " + query;
-    }
 
     /**
      * Reinicio de fábrica: Crea nuevas instancias vacías de todas las estructuras.

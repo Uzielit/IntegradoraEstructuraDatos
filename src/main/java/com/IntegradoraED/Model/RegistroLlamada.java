@@ -1,7 +1,7 @@
 package com.IntegradoraED.Model;
 
 import java.time.LocalDateTime;
-
+//FUNCION QUE NO SÉ LLEGO A UTILIZAR, PENSABAMIS AGREGAR LOS ATRIBUTOS
 public class RegistroLlamada {
     private String descripcion;
     private LocalDateTime timestamp;

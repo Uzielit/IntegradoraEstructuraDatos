@@ -23,9 +23,9 @@ public class ArbolBinario<T extends Comparable<T>> {
         public NodoArbol(T dato) { this.dato = dato; }
     }
 
-    // -------------------------------------------------------------------------
-    // --- RECURSIVIDAD 1: INSERCIÓN ---
-    // -------------------------------------------------------------------------
+
+    //  RECURSIVIDAD
+
 
     /**
      * Método público que inicia el proceso de guardar un dato nuevo.
@@ -45,9 +45,9 @@ public class ArbolBinario<T extends Comparable<T>> {
         return actual;
     }
 
-    // -------------------------------------------------------------------------
-    // --- RECURSIVIDAD 2: BÚSQUEDA ---
-    // -------------------------------------------------------------------------
+
+    //  RECURSIVIDAD 2: BÚSQUEDA
+
 
     /**
      * Usada cuando das click en la lupa de búsqueda en el HTML.
@@ -70,9 +70,8 @@ public class ArbolBinario<T extends Comparable<T>> {
         return buscarRecursivo(actual.izquierda, dato) || buscarRecursivo(actual.derecha, dato);
     }
 
-    // -------------------------------------------------------------------------
     // --- RECURSIVIDAD 3: ELIMINACIÓN ---
-    // -------------------------------------------------------------------------
+
 
     /**
      * Método público para borrar un elemento del árbol.
@@ -80,7 +79,7 @@ public class ArbolBinario<T extends Comparable<T>> {
     public void eliminar(T dato) { raiz = eliminarRecursivo(raiz, dato); }
 
     /**
-     * El método más complejo. Elimina un nodo y reestructura el árbol para que no se rompa.
+     * aqui se elimina un nodo y reestructura el árbol para que no se rompa.
      * Maneja 3 casos:
      * 1. El nodo no tiene hijos (es hoja): Se borra simple.
      * 2. El nodo tiene 1 hijo: El hijo sube a ocupar su lugar.
@@ -120,8 +119,8 @@ public class ArbolBinario<T extends Comparable<T>> {
     }
 
     // -------------------------------------------------------------------------
-    // --- RECURSIVIDAD 4: RECORRIDO (Convertir a Lista) ---
-    // -------------------------------------------------------------------------
+    //  RECURSIVIDAD 4: RECORRIDO (Convertir a Lista)
+
 
     /**
      * Convierte la estructura de Árbol compleja en una Lista simple (List<T>)
@@ -135,7 +134,7 @@ public class ArbolBinario<T extends Comparable<T>> {
 
     /**
      * Recorrido In-Order (Izquierda -> Raíz -> Derecha).
-     * Esto garantiza que la lista resultante salga ordenada alfabética o numéricamente.
+     * Esto para que la losta salga en orden
      */
     private void recorrerInOrden(NodoArbol<T> nodo, List<T> lista) {
         if (nodo != null) {

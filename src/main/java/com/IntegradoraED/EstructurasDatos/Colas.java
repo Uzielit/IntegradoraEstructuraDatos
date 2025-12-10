@@ -4,7 +4,6 @@ import java.util.List;
 
 /**
  * Clase Colas
- * -------------------
  * Implementación de una estructura de datos lineal tipo FIFO (First In, First Out).
  * Primero en entrar primero en salir
  *

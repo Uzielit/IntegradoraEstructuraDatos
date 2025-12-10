@@ -56,9 +56,9 @@ public class Pilas<T> {
         return valorQuitado;
     }
 
-    // --- NUEVO: BUSCAR ---
+    // NUEVO: BUSCAR
     /**
-     * Método Peek/Search (Buscar sin borrar)
+     * aqui buscamos nuestros clientes ya atendidos
      * Recorre la pila desde arriba hacia abajo buscando coincidencias de texto.
      */
     public boolean existe(String criterio) {
